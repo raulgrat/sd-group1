@@ -13,7 +13,7 @@ class LuxDisplayPage extends StatefulWidget {
 class _LuxDisplayPageState extends State<LuxDisplayPage> {
   int lux = 0;
   String message = '';
-  String ledState = 'off'; // Default LED state
+  bool isLedOn = false; // LED status
 
   final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
 
@@ -21,9 +21,10 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   void initState() {
     super.initState();
     fetchLuxData();
-    fetchLedState();
+    fetchLedState(); // Fetch LED state on startup
   }
 
+  // Fetch lux data
   Future<void> fetchLuxData() async {
     try {
       final response = await http.post(
@@ -50,6 +51,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
     }
   }
 
+  // Fetch LED state from API
   Future<void> fetchLedState() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/api/unlimited/updateLedState'));
@@ -57,7 +59,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          ledState = data['ledState'] ?? 'off';
+          isLedOn = data['ledState'] == 'on';
         });
       } else {
         setState(() {
@@ -66,36 +68,40 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       }
     } catch (e) {
       setState(() {
-        message = 'Error occurred while fetching LED state: ${e.toString()}';
+        message = 'Error fetching LED state: ${e.toString()}';
       });
     }
   }
 
-  Future<void> toggleLed() async {
-    try {
-      String newState = ledState == 'on' ? 'off' : 'on';
+  // Toggle LED state
+ Future<void> toggleLED() async {
+  try {
+    final newLedState = isLedOn ? 'off' : 'on';
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/unlimited/led'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({'ledState': newState}),
-      );
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/unlimited/updateLedState'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({'ledState': newLedState}),
+    );
 
-      if (response.statusCode == 201) {
-        setState(() {
-          ledState = newState;
-        });
-      } else {
-        setState(() {
-          message = 'Failed to update LED state.';
-        });
-      }
-    } catch (e) {
+    // Log the response body for debugging
+    print('Server Response: ${response.body}'); 
+
+    if (response.statusCode == 201) {
       setState(() {
-        message = 'Error occurred while updating LED state: ${e.toString()}';
+        isLedOn = newLedState == 'on';
+      });
+    } else {
+      setState(() {
+        message = 'Failed to toggle LED. Status Code: ${response.statusCode}';
       });
     }
+  } catch (e) {
+    setState(() {
+      message = 'Error toggling LED: ${e.toString()}';
+    });
   }
+}
 
   Widget _buildBackgroundImage() {
     return Container(
@@ -113,7 +119,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Lux Data',
+          'Lux Data & LED Control',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -182,7 +188,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                   ),
                   onPressed: fetchLuxData,
                   child: const Text(
-                    'Refresh',
+                    'Refresh Lux Data',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,
@@ -193,15 +199,15 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ledState == 'on' ? Colors.green : Colors.red,
+                    backgroundColor: isLedOn ? Colors.green : Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
-                  onPressed: toggleLed,
+                  onPressed: toggleLED,
                   child: Text(
-                    ledState == 'on' ? 'Turn LED Off' : 'Turn LED On',
+                    isLedOn ? 'Turn LED Off' : 'Turn LED On',
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
