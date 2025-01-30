@@ -52,26 +52,30 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   }
 
   // Fetch LED state from API
-  Future<void> fetchLedState() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/api/unlimited/updateLedState'));
+// Fetch LED state from API
+Future<void> fetchLedState() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/unlimited/updateLedState'),
+      headers: {'Accept': 'application/json'},  // Add Accept header
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          isLedOn = data['ledState'] == 'on';
-        });
-      } else {
-        setState(() {
-          message = 'Failed to fetch LED state.';
-        });
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       setState(() {
-        message = 'Error fetching LED state: ${e.toString()}';
+        isLedOn = data['ledState'] == 'on';
+      });
+    } else {
+      setState(() {
+        message = 'Failed to fetch LED state.';
       });
     }
+  } catch (e) {
+    setState(() {
+      message = 'Error fetching LED state: ${e.toString()}';
+    });
   }
+}
 
   // Toggle LED state
  Future<void> toggleLED() async {
