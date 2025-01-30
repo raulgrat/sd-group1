@@ -36,9 +36,9 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
         final data = jsonDecode(response.body);
         if (data != null) {
           setState(() {
-            co2 = data['co2'] ?? 0; // Extracting CO2 value
-            temperature = (data['temperature'] ?? 0).toDouble(); // Extracting temperature value and converting to double
-            humidity = (data['humidity'] ?? 0).toDouble(); // Extracting humidity value and converting to double
+            co2 = data['user']['co2'] ?? 0; // Extracting CO2 value
+            temperature = (data['user']['temperature'] ?? 0).toDouble(); // Extracting temperature value and converting to double
+            humidity = (data['user']['humidity'] ?? 0).toDouble(); // Extracting humidity value and converting to double
             message = ''; // Clear any previous error message
           });
         } else {

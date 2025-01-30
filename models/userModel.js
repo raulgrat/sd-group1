@@ -30,6 +30,18 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  co2: {
+    type: Number,
+    default: 0,
+  },
+  temperature: {
+    type: Number,
+    default: 0,
+  },
+  humidity: {
+    type: Number,
+    default: 0,
+  },
   
 });
 
