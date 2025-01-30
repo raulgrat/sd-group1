@@ -24,39 +24,51 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
     fetchSensorData();
   }
 
-  Future<void> fetchSensorData() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/unlimited/collectSensorData'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({'co2': -1, 'temperature': -1, 'humidity': -1}),
-      );
+Future<void> fetchSensorData() async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/unlimited/collectSensorData'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({}), // Fetch stored data
+    );
 
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        if (data != null) {
-          setState(() {
-            co2 = data['user']['co2'] ?? 0; // Extracting CO2 value
-            temperature = (data['user']['temperature'] ?? 0).toDouble(); // Extracting temperature value and converting to double
-            humidity = (data['user']['humidity'] ?? 0).toDouble(); // Extracting humidity value and converting to double
-            message = ''; // Clear any previous error message
-          });
-        } else {
-          setState(() {
-            message = 'Invalid data received from server.';
-          });
-        }
+    print('HTTP Response code: ${response.statusCode}');
+    print('Response from server: ${response.body}');
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      // Accessing sensor values inside 'user'
+      final Map<String, dynamic>? user = data['user'];
+
+      if (user != null) {
+        setState(() {
+          co2 = user['co2']?.toInt() ?? 0;
+          temperature = (user['temperature'] as num?)?.toDouble() ?? 0.0;
+          humidity = (user['humidity'] as num?)?.toDouble() ?? 0.0;
+          message = ''; // Clear error message
+        });
+
+        print('Parsed values -> CO2: $co2, Temperature: $temperature, Humidity: $humidity');
       } else {
         setState(() {
-          message = 'Failed to fetch sensor data. Please try again.';
+          message = 'No user data found';
         });
       }
-    } catch (e) {
+    } else {
       setState(() {
-        message = 'Error occurred: ${e.toString()}';
+        message = 'Failed to fetch sensor data. Status: ${response.statusCode}';
       });
     }
+  } catch (e) {
+    setState(() {
+      message = 'Error: ${e.toString()}';
+    });
   }
+}
+
+
+
 
   Widget _buildBackgroundImage() {
     return Container(

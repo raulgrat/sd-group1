@@ -69,6 +69,44 @@ export const collectSensorData = async (req, res) => {
     }
 };
 
+// API to handle LED state updates and retrieval
+export const updateLedState = async (req, res) => {
+  try {
+      const userName = "Bot"; // Define the username to search for
+
+      if (req.method === "POST") {
+          const { ledState } = req.body; // Expect "on" or "off"
+
+          if (ledState !== "on" && ledState !== "off") {
+              return res.status(400).json({ error: "Invalid LED state. Use 'on' or 'off'." });
+          }
+
+          const userRecord = await User.findOne({ username: userName });
+
+          if (userRecord) {
+              userRecord.ledState = ledState; // Save LED state
+              await userRecord.save();
+              res.status(201).json({ ledState: userRecord.ledState });
+          } else {
+              res.status(404).json({ error: "User not found" });
+          }
+      } else if (req.method === "GET") {
+          const userRecord = await User.findOne({ username: userName });
+
+          if (userRecord) {
+              res.status(200).json({ ledState: userRecord.ledState || "off" });
+          } else {
+              res.status(404).json({ error: "User not found" });
+          }
+      } else {
+          res.status(405).json({ error: "Method not allowed" });
+      }
+  } catch (error) {
+      console.log("Error in updateLedState controller", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const updateScore = async (req, res) => {
     try {
         const { username, score } = req.body;

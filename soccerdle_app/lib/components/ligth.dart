@@ -13,6 +13,7 @@ class LuxDisplayPage extends StatefulWidget {
 class _LuxDisplayPageState extends State<LuxDisplayPage> {
   int lux = 0;
   String message = '';
+  String ledState = 'off'; // Default LED state
 
   final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
 
@@ -20,6 +21,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   void initState() {
     super.initState();
     fetchLuxData();
+    fetchLedState();
   }
 
   Future<void> fetchLuxData() async {
@@ -33,8 +35,8 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         setState(() {
-          lux = data['user']['lux'] ?? 0; // Extracting lux value
-          message = ''; // Clear any previous error message
+          lux = data['user']['lux'] ?? 0;
+          message = '';
         });
       } else {
         setState(() {
@@ -44,6 +46,53 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
     } catch (e) {
       setState(() {
         message = 'Error occurred: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> fetchLedState() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/unlimited/updateLedState'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          ledState = data['ledState'] ?? 'off';
+        });
+      } else {
+        setState(() {
+          message = 'Failed to fetch LED state.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        message = 'Error occurred while fetching LED state: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> toggleLed() async {
+    try {
+      String newState = ledState == 'on' ? 'off' : 'on';
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/unlimited/led'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'ledState': newState}),
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          ledState = newState;
+        });
+      } else {
+        setState(() {
+          message = 'Failed to update LED state.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        message = 'Error occurred while updating LED state: ${e.toString()}';
       });
     }
   }
@@ -71,7 +120,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       ),
       body: Stack(
         children: [
-          _buildBackgroundImage(), // Background image
+          _buildBackgroundImage(),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -106,7 +155,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                         const Text(
                           'Lux Value',
                           style: TextStyle(
-                            fontSize: 40, // Larger "Lux Value" text
+                            fontSize: 40,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -114,7 +163,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                         Text(
                           '$lux',
                           style: const TextStyle(
-                            fontSize: 60, // Larger lux number
+                            fontSize: 60,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -125,21 +174,37 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Button background color
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // Smaller button
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
-                  onPressed: () async {
-                    await fetchLuxData();
-                  },
+                  onPressed: fetchLuxData,
                   child: const Text(
                     'Refresh',
                     style: TextStyle(
-                      fontSize: 16, // Standard text size for button
-                      color: Colors.white, // White text color
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ledState == 'on' ? Colors.green : Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  onPressed: toggleLed,
+                  child: Text(
+                    ledState == 'on' ? 'Turn LED Off' : 'Turn LED On',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -48,7 +48,7 @@ Widget build(BuildContext context) {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Daily Top Players',
+            'New Readings',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Text('Daily Top Players',
+            Text('readings',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
             Expanded(
