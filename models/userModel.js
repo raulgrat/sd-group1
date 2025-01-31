@@ -44,8 +44,8 @@ const userSchema = new mongoose.Schema({
   },
 
   ledState: {
-    type: Number,
-    default: 0,
+    type: String,   
+    default: "off",
   },
   
 });
