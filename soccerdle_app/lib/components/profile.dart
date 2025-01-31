@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void goLeaderboard(BuildContext context) {
-    Navigator.pushNamed(context, '/leaderBoard');
+    Navigator.pushNamed(context, '/ledControl');
   }
 
   void goUnlimited(BuildContext context) {

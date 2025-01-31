@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+
+  ledState: {
+    type: Number,
+    default: 0,
+  },
   
 });
 

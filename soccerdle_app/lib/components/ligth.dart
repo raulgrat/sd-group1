@@ -13,7 +13,6 @@ class LuxDisplayPage extends StatefulWidget {
 class _LuxDisplayPageState extends State<LuxDisplayPage> {
   int lux = 0;
   String message = '';
-  bool isLedOn = false; // LED status
 
   final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
 
@@ -21,10 +20,8 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   void initState() {
     super.initState();
     fetchLuxData();
-    fetchLedState(); // Fetch LED state on startup
   }
 
-  // Fetch lux data
   Future<void> fetchLuxData() async {
     try {
       final response = await http.post(
@@ -36,8 +33,8 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         setState(() {
-          lux = data['user']['lux'] ?? 0;
-          message = '';
+          lux = data['user']['lux'] ?? 0; // Extracting lux value
+          message = ''; // Clear any previous error message
         });
       } else {
         setState(() {
@@ -50,62 +47,6 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       });
     }
   }
-
-  // Fetch LED state from API
-// Fetch LED state from API
-Future<void> fetchLedState() async {
-  try {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/unlimited/updateLedState'),
-      headers: {'Accept': 'application/json'},  // Add Accept header
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        isLedOn = data['ledState'] == 'on';
-      });
-    } else {
-      setState(() {
-        message = 'Failed to fetch LED state.';
-      });
-    }
-  } catch (e) {
-    setState(() {
-      message = 'Error fetching LED state: ${e.toString()}';
-    });
-  }
-}
-
-  // Toggle LED state
- Future<void> toggleLED() async {
-  try {
-    final newLedState = isLedOn ? 'off' : 'on';
-
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/unlimited/updateLedState'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({'ledState': newLedState}),
-    );
-
-    // Log the response body for debugging
-    print('Server Response: ${response.body}'); 
-
-    if (response.statusCode == 201) {
-      setState(() {
-        isLedOn = newLedState == 'on';
-      });
-    } else {
-      setState(() {
-        message = 'Failed to toggle LED. Status Code: ${response.statusCode}';
-      });
-    }
-  } catch (e) {
-    setState(() {
-      message = 'Error toggling LED: ${e.toString()}';
-    });
-  }
-}
 
   Widget _buildBackgroundImage() {
     return Container(
@@ -123,14 +64,14 @@ Future<void> fetchLedState() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Lux Data & LED Control',
+          'Lux Data',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: Stack(
         children: [
-          _buildBackgroundImage(),
+          _buildBackgroundImage(), // Background image
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +106,7 @@ Future<void> fetchLedState() async {
                         const Text(
                           'Lux Value',
                           style: TextStyle(
-                            fontSize: 40,
+                            fontSize: 40, // Larger "Lux Value" text
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -173,7 +114,7 @@ Future<void> fetchLedState() async {
                         Text(
                           '$lux',
                           style: const TextStyle(
-                            fontSize: 60,
+                            fontSize: 60, // Larger lux number
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -184,37 +125,21 @@ Future<void> fetchLedState() async {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue, // Button background color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10), // Smaller button
                   ),
-                  onPressed: fetchLuxData,
+                  onPressed: () async {
+                    await fetchLuxData();
+                  },
                   child: const Text(
-                    'Refresh Lux Data',
+                    'Refresh',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isLedOn ? Colors.green : Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  onPressed: toggleLED,
-                  child: Text(
-                    isLedOn ? 'Turn LED Off' : 'Turn LED On',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
+                      fontSize: 16, // Standard text size for button
+                      color: Colors.white, // White text color
                       fontWeight: FontWeight.bold,
                     ),
                   ),

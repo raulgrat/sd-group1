@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void goLeaderboard(BuildContext context) {
-    Navigator.pushNamed(context, '/leaderBoard');
+    Navigator.pushNamed(context, '/ledControl');
   }
 
   void logout() {
