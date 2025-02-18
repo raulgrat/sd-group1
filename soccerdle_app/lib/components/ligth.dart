@@ -71,7 +71,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
       ),
       body: Stack(
         children: [
-          _buildBackgroundImage(), // Background image
+          _buildBackgroundImage(),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -106,7 +106,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                         const Text(
                           'Lux Value',
                           style: TextStyle(
-                            fontSize: 40, // Larger "Lux Value" text
+                            fontSize: 40,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -114,7 +114,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                         Text(
                           '$lux',
                           style: const TextStyle(
-                            fontSize: 60, // Larger lux number
+                            fontSize: 60,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -125,12 +125,12 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Button background color
+                    backgroundColor: Colors.blue, 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // Smaller button
+                        horizontal: 20, vertical: 10), 
                   ),
                   onPressed: () async {
                     await fetchLuxData();
@@ -138,8 +138,8 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                   child: const Text(
                     'Refresh',
                     style: TextStyle(
-                      fontSize: 16, // Standard text size for button
-                      color: Colors.white, // White text color
+                      fontSize: 16,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

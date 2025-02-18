@@ -15,6 +15,7 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
   double temperature = 0.0;
   double humidity = 0.0;
   String message = '';
+  bool isCelsius = true;
 
   final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
 
@@ -24,51 +25,41 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
     fetchSensorData();
   }
 
-Future<void> fetchSensorData() async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/unlimited/collectSensorData'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({}), // Fetch stored data
-    );
+  Future<void> fetchSensorData() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/unlimited/collectSensorData'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({}),
+      );
 
-    print('HTTP Response code: ${response.statusCode}');
-    print('Response from server: ${response.body}');
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final Map<String, dynamic>? user = data['user'];
 
-    if (response.statusCode == 201) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-
-      // Accessing sensor values inside 'user'
-      final Map<String, dynamic>? user = data['user'];
-
-      if (user != null) {
-        setState(() {
-          co2 = user['co2']?.toInt() ?? 0;
-          temperature = (user['temperature'] as num?)?.toDouble() ?? 0.0;
-          humidity = (user['humidity'] as num?)?.toDouble() ?? 0.0;
-          message = ''; // Clear error message
-        });
-
-        print('Parsed values -> CO2: $co2, Temperature: $temperature, Humidity: $humidity');
+        if (user != null) {
+          setState(() {
+            co2 = user['co2']?.toInt() ?? 0;
+            temperature = (user['temperature'] as num?)?.toDouble() ?? 0.0;
+            humidity = (user['humidity'] as num?)?.toDouble() ?? 0.0;
+            message = '';
+          });
+        } else {
+          setState(() {
+            message = 'No user data found';
+          });
+        }
       } else {
         setState(() {
-          message = 'No user data found';
+          message = 'Failed to fetch sensor data. Status: ${response.statusCode}';
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
-        message = 'Failed to fetch sensor data. Status: ${response.statusCode}';
+        message = 'Error: ${e.toString()}';
       });
     }
-  } catch (e) {
-    setState(() {
-      message = 'Error: ${e.toString()}';
-    });
   }
-}
-
-
-
 
   Widget _buildBackgroundImage() {
     return Container(
@@ -83,6 +74,9 @@ Future<void> fetchSensorData() async {
 
   @override
   Widget build(BuildContext context) {
+    double displayedTemperature = isCelsius ? temperature : (temperature * 9 / 5) + 32;
+    String temperatureUnit = isCelsius ? '°C' : '°F';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -93,19 +87,14 @@ Future<void> fetchSensorData() async {
       ),
       body: Stack(
         children: [
-          _buildBackgroundImage(), // Background image
+          _buildBackgroundImage(),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (message.isNotEmpty)
-                  Container(
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
                     child: Text(
                       message,
                       textAlign: TextAlign.center,
@@ -125,77 +114,82 @@ Future<void> fetchSensorData() async {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          'CO2 Level',
-                          style: TextStyle(
-                            fontSize: 40, // Larger "CO2 Level" text
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          '$co2 ppm',
-                          style: const TextStyle(
-                            fontSize: 60, // Larger CO2 number
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Temperature',
-                          style: TextStyle(
-                            fontSize: 40, // Larger "Temperature" text
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          '$temperature °C',
-                          style: const TextStyle(
-                            fontSize: 60, // Larger temperature number
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'CO₂ ',
+                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '$co2 ppm',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: co2 > 1000 ? Colors.red : Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Humidity',
-                          style: TextStyle(
-                            fontSize: 40, // Larger "Humidity" text
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                const Icon(Icons.thermostat, size: 40),
+                                const SizedBox(height: 5),
+                                Text(
+                                  '${displayedTemperature.toStringAsFixed(1)} $temperatureUnit',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                const Icon(Icons.water_drop, size: 40),
+                                const SizedBox(height: 5),
+                                Text(
+                                  '$humidity %',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          '$humidity %',
-                          style: const TextStyle(
-                            fontSize: 60, // Larger humidity number
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                        const SizedBox(height: 20),
+                        DropdownButton<bool>(
+                          value: isCelsius,
+                          items: const [
+                            DropdownMenuItem(value: true, child: Text('Celsius (°C)')),
+                            DropdownMenuItem(value: false, child: Text('Fahrenheit (°F)')),
+                          ],
+                          onChanged: (bool? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                isCelsius = newValue;
+                              });
+                            }
+                          },
                         ),
                       ],
                     ),
                   ),
                 const SizedBox(height: 20),
                 ElevatedButton(
+                  onPressed: fetchSensorData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Button background color
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // Smaller button
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
-                  onPressed: () async {
-                    await fetchSensorData();
-                  },
                   child: const Text(
                     'Refresh',
                     style: TextStyle(
-                      fontSize: 16, // Standard text size for button
-                      color: Colors.white, // White text color
+                      fontSize: 16,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -107,6 +107,7 @@ export const updateLedState = async (req, res) => {
   }
 };
 
+
 export const updateScore = async (req, res) => {
     try {
         const { username, score } = req.body;

@@ -16,11 +16,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String newName = Storage.getName();
   String newUsername = Storage.getUser();
   String message = '';
-  //int score = 0;
-  //int dailyScore = 0;
-  //int gamesPlayed = 0;
-  //int gamesWon = 0;
-  //int streak = 0;
+
+  final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
 
   @override
   void initState() {
@@ -28,12 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
     fetchUser();
   }
 
-  
-
-  final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
-
   Future<void> fetchUser() async {
-    // Fetch user data from the API
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/obtainUser'),
@@ -41,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'username': Storage.getUser(), // Replace with the actual username
+          'username': Storage.getUser(),
         }),
       );
 
@@ -50,16 +42,9 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           newName = userData['name'];
           newUsername = userData['username'];
-          //score = userData['score'];
-          //dailyScore = userData['dailyScore'];
-          //gamesPlayed = userData['amountGamesPlayed'];
-          //gamesWon = userData['amountGamesWon'];
-          //streak = userData['streak'];
+          display = userData['name'];
         });
       } else {
-         print('Response status: ${response.statusCode}');
-         print('Username fetched from Storage: ${Storage.getUser()}');
-
         setState(() {
           message = 'Failed to fetch user data';
         });
@@ -130,11 +115,11 @@ class _ProfilePageState extends State<ProfilePage> {
           newUsername = res['newUser'];
           Storage.setUser(newUsername);
         });
-      } else if(response.statusCode == 400){
+      } else if (response.statusCode == 400) {
         setState(() {
           message = 'Username already existed';
         });
-      } else{
+      } else {
         setState(() {
           message = 'Failed to update Username!';
         });
@@ -144,10 +129,6 @@ class _ProfilePageState extends State<ProfilePage> {
         message = 'Internal Server Error: $e';
       });
     }
-  }
-
-  void logout() {
-    Navigator.pushReplacementNamed(context, '/login');
   }
 
   Future<void> deleteUser() async {
@@ -180,297 +161,334 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-
-
-  void playDaily(BuildContext context) {
-    Navigator.pushNamed(context, '/luxDisplay');
-  }
-
-  void goLeaderboard(BuildContext context) {
-    Navigator.pushNamed(context, '/ledControl');
-  }
-
-  void goUnlimited(BuildContext context) {
-    Navigator.pushNamed(context, '/sensorDataDisplay');
-  }
-
-  void goAllTime(BuildContext context) {
-    Navigator.pushNamed(context, '/allTimeLeaderboard');
+  void logout() {
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   void goHome(BuildContext context) {
     Navigator.pushNamed(context, '/home');
   }
 
-  @override
-  Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'G.E.A',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.grey.shade200.withOpacity(0.5),
-          elevation: 0,
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              color: Color.fromARGB(255, 157, 21, 21),
-              onPressed: logout,
-            ),
-          ],
+  void playDaily(BuildContext context) {
+    Navigator.pushNamed(context, '/luxDisplay');
+  }
+
+  void goUnlimited(BuildContext context) {
+    Navigator.pushNamed(context, '/sensorDataDisplay');
+  }
+
+  void goLeaderboard(BuildContext context) {
+    Navigator.pushNamed(context, '/ledControl');
+  }
+
+  void goAllTime(BuildContext context) {
+    Navigator.pushNamed(context, '/allTimeLeaderboard');
+  }
+
+  Widget _buildBackgroundImage() {
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('lib/images/app.jpg'),
+          fit: BoxFit.cover,
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              Container(
-                color: Color(0xff7eaf34),
-                height: 120, // Adjust the height as needed
+      ),
+    );
+  }
+
+  Widget _buildProfileCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Profile info header
+          const Text(
+            'Profile Information',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const Divider(thickness: 1, height: 20),
+          // Display current name and username in a row
+          Row(
+            children: [
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        'Signed as:',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
+                    const Text(
+                      'Name:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        Storage.getName(),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
+                    Text(display, style: const TextStyle(fontSize: 18)),
                   ],
                 ),
               ),
-              ListTile(
-                title: Text('Home Page'),
-                onTap: () {
-                  Navigator.pop(context);
-                  goHome(context);
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 0.5),
-                  borderRadius: BorderRadius.circular(0),
-                ),
-              ),
-              ListTile(
-                title: Text('Analyzer of Blue to red Light'),
-                onTap: () {
-                  Navigator.pop(context);
-                  playDaily(context);
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(0),
-                ),
-              ),
-              ListTile(
-                title: Text('Tempetarute Readings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  goUnlimited(context);
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 0.5),
-                  borderRadius: BorderRadius.circular(0),
-                ),
-              ),
-              ListTile(
-                title: Text('Humidity Readings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  goLeaderboard(context);
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(0),
-                ),
-              ),
-              ListTile(
-                title: Text('CO2 Readings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  goAllTime(context);
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 0.5),
-                  borderRadius: BorderRadius.circular(0),
-                ),
-              ),
-              ListTile(
-                title: Text('About Us'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/aboutUs');
-                },
-                shape: RoundedRectangleBorder(
-                  //side: BorderSide(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(0),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Username:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(newUsername, style: const TextStyle(fontSize: 18)),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Hello $display!',
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20.0),
-             // Text(
-               // 'Readings recorded:',
-               // style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-             // ),
-            //  SizedBox(height: 10.0),
-             // Text('Analyzer Of Blue to Red Light: $dailyScore'),
-             // Text('Temperature readings: $score'),
-             // Text('Humidity readings: $gamesPlayed'),
-             // Text('CO2 readings: $gamesWon'),
-             // Text('Streak: $streak'),
-              //SizedBox(height: 20.0),
-              Form(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      initialValue: newName,
-                      onChanged: (value) {
-                        setState(() {
-                          newName = value;
-                        });
-                      },
-                      decoration: InputDecoration(labelText: 'Name'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await changeName(newName);
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Color(0xff7eaf34)),
-                        side: MaterialStateProperty.all<BorderSide>(
-                          BorderSide(color: Colors.black, width: 1),
-                        ),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                    ),
-                      child: Text('Update Name'),
-                    ),
-                    TextFormField(
-                      initialValue: newUsername,
-                      onChanged: (value) {
-                        setState(() {
-                          newUsername = value;
-                        });
-                      },
-                      decoration: InputDecoration(labelText: 'Username'),
-                    ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await changeUsername(newUsername);
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Color(0xff7eaf34)),
-                      side: MaterialStateProperty.all<BorderSide>(
-                        BorderSide(color: Colors.black, width: 1),
-                      ),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                    ),
-                      child: Text('Update Username'),
-                    ),
-                    SizedBox(height: 20.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Show confirmation dialog to delete account
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Confirm'),
-                              content: Text(
-                                  'Are you sure you want to delete your account?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                    await deleteUser(); // Call deleteUser function
-                                  },
-                                  child: Text('Delete'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                        side: MaterialStateProperty.all<BorderSide>(
-                          BorderSide(color: Colors.black, width: 1),
-                        ),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                      ),
-                      child: Text('Delete Account'),
-                    ),
-                    SizedBox(height: 20.0),
-                    if (message.isNotEmpty)
-                      Text(
-                        message,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                ],
-              ),
+          const SizedBox(height: 20),
+          // Form for updating name and username
+          const Text(
+            'Update Your Details',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            initialValue: newName,
+            onChanged: (value) {
+              setState(() {
+                newName = value;
+              });
+            },
+            decoration: const InputDecoration(
+              labelText: 'New Name',
+              border: OutlineInputBorder(),
             ),
-          ],
+          ),
+          const SizedBox(height: 10),
+          // Left-aligned update button
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: () async {
+                await changeName(newName);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff7eaf34),
+                foregroundColor: Colors.black,
+                side: const BorderSide(color: Colors.black, width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              ),
+              child: const Text('Update Name'),
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            initialValue: newUsername,
+            onChanged: (value) {
+              setState(() {
+                newUsername = value;
+              });
+            },
+            decoration: const InputDecoration(
+              labelText: 'New Username',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: () async {
+                await changeUsername(newUsername);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff7eaf34),
+                foregroundColor: Colors.black,
+                side: const BorderSide(color: Colors.black, width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              ),
+              child: const Text('Update Username'),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Delete account button (left-aligned)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: () {
+                // Show confirmation dialog to delete account
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirm'),
+                      content: const Text(
+                          'Are you sure you want to delete your account?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pop(); // Close the dialog
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.of(context)
+                                .pop(); // Close the dialog
+                            await deleteUser(); // Call deleteUser function
+                          },
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.black,
+                side: const BorderSide(color: Colors.black, width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              ),
+              child: const Text('Delete Account'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (message.isNotEmpty)
+            Text(
+              message,
+              style: const TextStyle(color: Colors.red),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(
+            color: const Color(0xff7eaf34),
+            height: 120,
+            padding: const EdgeInsets.only(left: 16, top: 30, bottom: 10),
+            alignment: Alignment.bottomLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Signed in as:',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  Storage.getName(),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            title: const Text('Home Page'),
+            onTap: () {
+              Navigator.pop(context);
+              goHome(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Analyzer of Blue to Red Light'),
+            onTap: () {
+              Navigator.pop(context);
+              playDaily(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Temperature Readings'),
+            onTap: () {
+              Navigator.pop(context);
+              goUnlimited(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Humidity Readings'),
+            onTap: () {
+              Navigator.pop(context);
+              goLeaderboard(context);
+            },
+          ),
+          ListTile(
+            title: const Text('CO2 Readings'),
+            onTap: () {
+              Navigator.pop(context);
+              goAllTime(context);
+            },
+          ),
+          ListTile(
+            title: const Text('About Us'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/aboutUs');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'G.E.A',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        centerTitle: true,
+        backgroundColor: Colors.grey.shade200.withOpacity(0.5),
+        elevation: 0,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            color: const Color.fromARGB(255, 157, 21, 21),
+            onPressed: logout,
+          ),
+        ],
+      ),
+      drawer: _buildDrawer(),
+      body: Stack(
+        children: [
+          _buildBackgroundImage(),
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: _buildProfileCard(),
+          ),
+        ],
       ),
     );
   }
