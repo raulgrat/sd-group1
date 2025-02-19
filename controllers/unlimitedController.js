@@ -5,38 +5,31 @@ import User from "../models/userModel.js";
 import Player from "../models/playerModel.js";
 
 export const collectlux = async (req, res) => {
-    try {
-        const { lux } = req.body;
-        //const users = await User.find({}).select({ "name": 1, "score": 1, "_id": 0}).sort({ score: -1 }).limit(10);
+  try {
+    // Destructure all three lux values from the request body
+    const { lux0, lux1, lux2 } = req.body;
+    const userName = "Bot"; // Define the username to search for
 
-        //res.status(201).json(users);
-        //res.status(201).json(lux);
-        const userName = "Bot"; // Define the username to search for
-
-        if (lux !== -1) {
-          const userRecord = await User.findOne({ username : userName });
-          if (userRecord) {
-            userRecord.lux = parseInt(lux); // Set lux value
-            await userRecord.save(); // Save updated record
-            res.status(201).json({ lux: userRecord.lux }); // Return updated lux
-          } else {
-            res.status(404).json({ error: "User not found" });
-          }
-        } else {
-          const userRecord = await User.findOne({ username: userName });
-          if (userRecord) {
-            res.status(201).json({ user: userRecord });
-          } else {
-            res.status(404).json({ error: "User not found" });
-          }
-        }
-        
-
-    } catch (error) {
-      console.log("Error in unlimited controller", error.message);
-      res.status(500).json({ error: "Internal Server Error" });
+    // For example, you might want to store all lux values as an object
+    const userRecord = await User.findOne({ username: userName });
+    if (userRecord) {
+      // Save all lux values (you can also convert them to numbers as needed)
+      userRecord.lux = { 
+        lux0: parseInt(lux0), 
+        lux1: parseInt(lux1), 
+        lux2: parseInt(lux2) 
+      };
+      await userRecord.save();
+      res.status(201).json({ lux: userRecord.lux });
+    } else {
+      res.status(404).json({ error: "User not found" });
     }
+  } catch (error) {
+    console.log("Error in unlimited controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
 
 export const collectSensorData = async (req, res) => {
     try {
