@@ -11,7 +11,9 @@ class LuxDisplayPage extends StatefulWidget {
 }
 
 class _LuxDisplayPageState extends State<LuxDisplayPage> {
-  int lux = 0;
+  int lux0 = 0;
+  int lux1 = 0;
+  int lux2 = 0;
   String message = '';
 
   final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
@@ -23,30 +25,44 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   }
 
   Future<void> fetchLuxData() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/unlimited/collectlux'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({'lux': -1}),
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/unlimited/collectlux'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({
+        'lux0': lux0, // replace with actual sensor value
+        'lux1': lux1, // replace with actual sensor value
+        'lux2': lux2, // replace with actual sensor value
+      }),
+    );
 
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic>? lux = data['user']; 
+      if (lux != null) {
         setState(() {
-          lux = data['user']['lux'] ?? 0; // Extracting lux value
+          lux0 = lux['lux0'] ?? 0;
+          lux1 = lux['lux1'] ?? 0;
+          lux2 = lux['lux2'] ?? 0;
           message = ''; // Clear any previous error message
         });
-      } else {
-        setState(() {
-          message = 'Failed to fetch lux data. Please try again.';
-        });
       }
-    } catch (e) {
+    } else {
       setState(() {
-        message = 'Error occurred: ${e.toString()}';
+        message = 'Failed to fetch lux data. Status code: ${response.statusCode}.';
       });
     }
+  } catch (e) {
+    setState(() {
+      message = 'Error occurred: ${e.toString()}';
+    });
   }
+}
+
+
 
   Widget _buildBackgroundImage() {
     return Container(
@@ -104,7 +120,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                     child: Column(
                       children: [
                         const Text(
-                          'Lux Value',
+                          'Lux Values',
                           style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
@@ -112,9 +128,25 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          '$lux',
+                          'Lux0: $lux0',
                           style: const TextStyle(
-                            fontSize: 60,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'Lux1: $lux1',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'Lux2: $lux2',
+                          style: const TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),

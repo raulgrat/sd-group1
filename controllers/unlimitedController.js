@@ -13,14 +13,11 @@ export const collectlux = async (req, res) => {
     // For example, you might want to store all lux values as an object
     const userRecord = await User.findOne({ username: userName });
     if (userRecord) {
-      // Save all lux values (you can also convert them to numbers as needed)
-      userRecord.lux = { 
-        lux0: parseInt(lux0), 
-        lux1: parseInt(lux1), 
-        lux2: parseInt(lux2) 
-      };
+      userRecord.lux0 = parseInt(lux0);
+      userRecord.lux1 = parseInt(lux1);
+      userRecord.lux2 = parseInt(lux2);
       await userRecord.save();
-      res.status(201).json({ lux: userRecord.lux });
+      res.status(201).json({ lux0: userRecord.lux0, lux1: userRecord.lux1, lux2: userRecord.lux2 });
     } else {
       res.status(404).json({ error: "User not found" });
     }
