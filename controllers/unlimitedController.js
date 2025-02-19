@@ -11,6 +11,7 @@ export const collectlux = async (req, res) => {
     const userName = "Bot"; // Define the username to search for
 
     // For example, you might want to store all lux values as an object
+    if (lux0 !== undefined && lux1!== undefined && lux2!== undefined) {
     const userRecord = await User.findOne({ username: userName });
     if (userRecord) {
       userRecord.lux0 = parseInt(lux0);
@@ -21,7 +22,15 @@ export const collectlux = async (req, res) => {
     } else {
       res.status(404).json({ error: "User not found" });
     }
-  } catch (error) {
+  } else {
+    const userRecord = await User.findOne({ username: userName });
+    if (userRecord) {
+      res.status(201).json({ user: userRecord });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  }
+ } catch (error) {
     console.log("Error in unlimited controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }

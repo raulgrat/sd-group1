@@ -25,44 +25,38 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
   }
 
   Future<void> fetchLuxData() async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/unlimited/collectlux'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({
-        'lux0': lux0, // replace with actual sensor value
-        'lux1': lux1, // replace with actual sensor value
-        'lux2': lux2, // replace with actual sensor value
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/unlimited/collectlux'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({}), // Sending data to request lux values
+      );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-    if (response.statusCode == 201) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final Map<String, dynamic>? lux = data['user']; 
-      if (lux != null) {
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final Map<String, dynamic>? user = data['user'];
+        if (user != null) {
         setState(() {
-          lux0 = lux['lux0'] ?? 0;
-          lux1 = lux['lux1'] ?? 0;
-          lux2 = lux['lux2'] ?? 0;
+          lux0 = user['lux0']?.toInt() ?? 0;
+          lux1 = user['lux1']?.toInt() ?? 0;
+          lux2 = user['lux2']?.toInt() ?? 0;
           message = ''; // Clear any previous error message
         });
       }
-    } else {
+      } else {
+        setState(() {
+          message = 'Failed to fetch lux data. Status code: ${response.statusCode}.';
+        });
+      }
+    } catch (e) {
       setState(() {
-        message = 'Failed to fetch lux data. Status code: ${response.statusCode}.';
+        message = 'Error occurred: ${e.toString()}';
       });
     }
-  } catch (e) {
-    setState(() {
-      message = 'Error occurred: ${e.toString()}';
-    });
   }
-}
-
-
 
   Widget _buildBackgroundImage() {
     return Container(
