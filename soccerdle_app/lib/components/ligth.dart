@@ -32,8 +32,8 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
         body: jsonEncode({}), // Sending data to request lux values
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      //print('Response status: ${response.statusCode}');
+      //print('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> data = jsonDecode(response.body);

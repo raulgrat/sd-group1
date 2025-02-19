@@ -25,11 +25,17 @@ const userSchema = new mongoose.Schema({
     required: true,
     minLength: 6,
   },
-
-  lux: {
-    lux0: { type: Number, default: 0 },
-    lux1: { type: Number, default: 0 },
-    lux2: { type: Number, default: 0 }
+  lux0: {
+    type: Number, 
+    default: 0 ,
+  },
+  lux1: {
+    type: Number, 
+    default: 0 ,
+  },
+  lux2: {
+    type: Number, 
+    default: 0 ,
   },
   co2: {
     type: Number,
