@@ -14,25 +14,25 @@ class _AboutUsPageState extends State<AboutUsPage> {
     {
       'name': 'Maya Sosa',
       'role': 'PSE',
-      'image': 'lib/images/user.png', // Updated to use local image
+      'image': 'lib/images/maya.jpg', // Updated to use local image
       'linkedin': 'https://www.linkedin.com',
     },
     {
       'name': 'Paul Weiner',
       'role': 'PSE',
-      'image': 'lib/images/user.png', // Updated to use local image
+      'image': 'lib/images/paul.jpg', // Updated to use local image
       'linkedin': 'https://www.linkedin.com',
     },
     {
       'name': 'Raul Graterol Medina',
       'role': 'CPE',
-      'image': 'lib/images/user.png', // Updated to use local image
+      'image': 'lib/images/raul.jpg', // Updated to use local image
       'linkedin': 'https://www.linkedin.com',
     },
     {
       'name': 'Leiner Suarez Colome',
       'role': 'EE',
-      'image': 'lib/images/user.png', // Updated to use local image
+      'image': 'lib/images/leiner.jpg', // Updated to use local image
       'linkedin': 'https://www.linkedin.com',
     },
   ];
@@ -58,7 +58,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
               child: Container(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withOpacity(0.95),
               ),
             ),
           ),
@@ -93,7 +93,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
                             margin: const EdgeInsets.symmetric(vertical: 10),
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.7), // Opacity
+                              color: Colors.white.withOpacity(0.95), // Opacity
                               border: Border.all(
                                 color: Colors.black,
                                 width: 2,
@@ -116,10 +116,20 @@ class _AboutUsPageState extends State<AboutUsPage> {
                                       color: Color.fromARGB(255, 86, 85, 85)),
                                 ),
                                 const SizedBox(height: 10),
-                                Image.asset(
-                                  teamMembers[index]['image'], // Use local image
-                                  width: 120,
-                                  height: 120,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black, // Border color
+                                      width: 2, // Border width
+                                    ),
+                                    borderRadius: BorderRadius.circular(5), // Optional: rounds the corners
+                                  ),
+                                  child: Image.asset(
+                                    teamMembers[index]['image'], // Use local image
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover, // Ensures the image fits inside the box
+                                  ),
                                 ),
                               ],
                             ),

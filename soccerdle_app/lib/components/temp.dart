@@ -80,7 +80,7 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Sensor Data',
+          'G.E.A',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -109,9 +109,13 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
                     padding: const EdgeInsets.all(16.0),
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withOpacity(0.95),
                       borderRadius: BorderRadius.circular(10),
-                    ),
+                      border: Border.all(
+                          color: Colors.black, // Set the border color
+                          width: 1.5, // Set the border width
+                        ),
+                      ),
                     child: Column(
                       children: [
                         Row(
@@ -179,19 +183,31 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
                 ElevatedButton(
                   onPressed: fetchSensorData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.white, // Background color
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(30), // Rounded button
                     ),
+                    elevation: 1, // Shadow effect
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
-                  child: const Text(
-                    'Refresh',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.refresh,
+                        color: Colors.green, // Icon color
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Refresh',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black, // Text color
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
