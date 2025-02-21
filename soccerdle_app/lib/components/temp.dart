@@ -184,9 +184,11 @@ class _SensorDataDisplayPageState extends State<SensorDataDisplayPage> {
                   onPressed: fetchSensorData,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Background color
+                    side: const BorderSide(color: Colors.black, width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30), // Rounded button
+                      borderRadius: BorderRadius.circular(30), // Rounded button 
                     ),
+                    
                     elevation: 1, // Shadow effect
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),

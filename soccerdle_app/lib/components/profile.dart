@@ -208,10 +208,12 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Profile info header
-          const Text(
+        const Center(
+          child: Text(
             'Profile Information',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
+        ),
           const Divider(thickness: 1, height: 20),
           // Display current name and username in a row
           Row(
@@ -426,7 +428,7 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           ListTile(
-            title: const Text('Humidity Readings'),
+            title: const Text('LED Controller'),
             onTap: () {
               Navigator.pop(context);
               goLeaderboard(context);

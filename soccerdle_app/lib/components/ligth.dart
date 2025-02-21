@@ -124,10 +124,10 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                           children: [
                             Column(
                               children: [
-                                const Icon(Icons.lightbulb, size: 40, color: Color.fromARGB(255, 240, 250, 49)),
+                                const Icon(Icons.lightbulb, size: 70, color: Color.fromARGB(255, 204, 214, 8)),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'White: $lux0',
+                                  '$lux0',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -138,10 +138,10 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                             ),
                             Column(
                               children: [
-                                const Icon(Icons.lightbulb, size: 40, color: Colors.red),
+                                const Icon(Icons.lightbulb, size: 70, color: Color.fromARGB(255, 176, 19, 8)),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'Red: $lux1',
+                                  '$lux1',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -152,10 +152,10 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                             ),
                             Column(
                               children: [
-                                const Icon(Icons.lightbulb, size: 40, color: Colors.blue),
+                                const Icon(Icons.lightbulb, size: 70, color: Color.fromARGB(255, 3, 85, 152)),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'Blue: $lux2',
+                                  '$lux2',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: blueRedRatio > 1 ? Colors.blue : Colors.red,
+                                color: blueRedRatio > 1 ? const Color.fromARGB(255, 3, 85, 152) : const Color.fromARGB(255, 176, 19, 8),
                               ),
                             ),
                           ],
@@ -192,6 +192,7 @@ class _LuxDisplayPageState extends State<LuxDisplayPage> {
                   onPressed: fetchLuxData,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Background color
+                    side: const BorderSide(color: Colors.black, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30), // Rounded button
                     ),

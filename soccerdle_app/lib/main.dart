@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
         '/luxDisplay': (context) => const LuxDisplayPage(),
-        '/ledControl': (context) => const LEDControlPage(),
+        '/ledControl': (context) => const LEDBulbControlPage(),
         '/sensorDataDisplay': (context) => const SensorDataDisplayPage(),
         '/dailyGamePage': (context) => const DailyGamePage(),
         '/unlimitedModePage': (context) => const UnlimitedModePage(),

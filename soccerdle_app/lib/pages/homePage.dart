@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              title: Text('Humidity Readings'),
+              title: Text('LED Controller'),
               onTap: () {
                 Navigator.pop(context);
                 goLeaderboard(context);
@@ -213,9 +213,9 @@ class _HomePageState extends State<HomePage> {
                       'Get Readings'),
                   _buildCard(
                       context,
-                      'Humidity Readings',
-                      'Track humidity levels and stay informed on daily fluctuations.',
-                      'lib/images/light.jpg',
+                      'LED Controller',
+                      'Manage your lighting with precise control and customizable presets.',
+                      'lib/images/led.jpg',
                       goLeaderboard,
                       'Get Readings'),
                   _buildCard(

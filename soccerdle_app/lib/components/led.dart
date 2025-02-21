@@ -1,49 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
-class LEDControlPage extends StatefulWidget {
-  static const String routeName = '/ledControl';
-  const LEDControlPage({Key? key}) : super(key: key);
+class LEDBulbControlPage extends StatefulWidget {
+  const LEDBulbControlPage({Key? key}) : super(key: key);
 
   @override
-  _LEDControlPageState createState() => _LEDControlPageState();
+  _LEDBulbControlPageState createState() => _LEDBulbControlPageState();
 }
 
-class _LEDControlPageState extends State<LEDControlPage> {
-  bool isLedOn = false;
-  String message = '';
+class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
+  // List to track the on/off state for 20 LEDs (all initially off).
+  final List<bool> ledStates = List<bool>.filled(20, false);
 
-  final String baseUrl = 'https://sd-group1-7db20f01361c.herokuapp.com';
-
- Future<void> toggleLED() async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/unlimited/updateLedState'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({'ledState': isLedOn ? 'off' : 'on'}), // Use 'ledState' as the key
-    );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    if (response.statusCode == 201) {
-      setState(() {
-        isLedOn = !isLedOn;
-        message = ''; // Clear any previous error message
-      });
-    } else {
-      setState(() {
-        message = 'Failed to update LED state. Please try again.';
-      });
-    }
-  } catch (e) {
-    setState(() {
-      message = 'Error occurred: ${e.toString()}';
-    });
+  // Returns the color for each LED bulb: gray if off, blue for first 10 when on, red for last 10.
+  Color _getLEDBulbColor(int index) {
+    return !ledStates[index]
+        ? Colors.grey
+        : index < 10
+            ? const Color.fromARGB(255, 3, 85, 152)
+            : const Color.fromARGB(255, 176, 19, 8);
   }
-}
 
+  // Background image as per LuxDisplayPage.
   Widget _buildBackgroundImage() {
     return Container(
       decoration: const BoxDecoration(
@@ -55,92 +32,144 @@ class _LEDControlPageState extends State<LEDControlPage> {
     );
   }
 
+  // Function to set the LED states for different modes
+  void _setPresetMode(int blueOn, int redOn) {
+    setState(() {
+      for (int i = 0; i < ledStates.length; i++) {
+        if (i < 10) {
+          // First 10 bulbs (blue)
+          ledStates[i] = i < blueOn;
+        } else {
+          // Last 10 bulbs (red)
+          ledStates[i] = (i - 10) < redOn;
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'LED Control',
+          'G.E.A',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: Stack(
         children: [
-          _buildBackgroundImage(), // Background image
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (message.isNotEmpty)
-                  Container(
+          _buildBackgroundImage(),
+          Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Container(
                     padding: const EdgeInsets.all(16.0),
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withOpacity(0.95),
                       borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                if (message.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 1.5),
                     ),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'LED State',
+                          'LED Control',
                           style: TextStyle(
-                            fontSize: 40, // Larger "LED State" text
+                            fontSize: 24, // Title font size
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          isLedOn ? 'ON' : 'OFF',
-                          style: const TextStyle(
-                            fontSize: 60, // Larger LED state text
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                        const SizedBox(height: 20),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ledStates.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5, // 5 bulbs per row.
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
                           ),
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  // Toggle the state of the tapped bulb.
+                                  ledStates[index] = !ledStates[index];
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                child: Icon(
+                                  Icons.lightbulb,
+                                  size: 50,
+                                  color: _getLEDBulbColor(index),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
                   ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Button background color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // Smaller button
-                  ),
-                  onPressed: () async {
-                    await toggleLED();
-                  },
-                  child: Text(
-                    isLedOn ? 'Turn OFF' : 'Turn ON',
-                    style: const TextStyle(
-                      fontSize: 16, // Standard text size for button
-                      color: Colors.white, // White text color
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
-              ],
+              ),
+              const SizedBox(height: 1), // Gap between container and buttons
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildPresetButton('All On', 10, 10), // All LEDs On
+                  _buildPresetButton('All Off', 0, 0), // All LEDs Off
+                  _buildPresetButton('50-50', 5, 5),
+                  _buildPresetButton('20-80', 2, 8),
+                  _buildPresetButton('70-30', 7, 3),
+                  _buildPresetButton('30-70', 3, 7),
+                  _buildPresetButton('100-0', 10, 0),
+                  _buildPresetButton('0-100', 0, 10),
+                  _buildPresetButton('40-60', 4, 6),
+                ],
+              ),
+              const SizedBox(height: 90), // Extra padding at the bottom
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper function to build preset buttons
+  Widget _buildPresetButton(String label, int blueOn, int redOn) {
+    return ElevatedButton(
+      onPressed: () => _setPresetMode(blueOn, redOn),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white, // Background color
+        side: const BorderSide(color: Colors.black, width: 1.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30), // Rounded button
+        ),
+        elevation: 5, // Shadow effect
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.tune,
+            color: Colors.green, // Icon color
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black, // Text color
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
