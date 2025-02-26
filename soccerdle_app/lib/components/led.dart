@@ -63,6 +63,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
       );
       if (response.statusCode == 200) {
         print("LED states updated successfully");
+        print("Server Response: ${response.body}");
       } else {
         print("Failed to update LED states: ${response.statusCode}");
       }
