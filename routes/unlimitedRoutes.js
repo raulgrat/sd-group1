@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/collectlux", collectlux);
 router.post("/collectSensorData", collectSensorData);
-router.get("/ledcontrol", updateLEDStates);
+router.post("/ledcontrol", updateLEDStates);
 router.post("/updateScore", updateScore);
 
 export default router;
