@@ -1,11 +1,12 @@
 import express from "express";
-import { collectlux, updateScore, collectSensorData, updateLEDStates} from "../controllers/unlimitedController.js";
+import { collectlux, updateScore, collectSensorData, updateLEDStates,getLEDStates} from "../controllers/unlimitedController.js";
 
 const router = express.Router();
 
 router.post("/collectlux", collectlux);
 router.post("/collectSensorData", collectSensorData);
 router.post("/ledcontrol", updateLEDStates);
+router.get("/ledcontrol", getLEDStates);
 router.post("/updateScore", updateScore);
 
 export default router;
