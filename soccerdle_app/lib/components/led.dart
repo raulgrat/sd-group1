@@ -14,15 +14,16 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
   final List<bool> ledStates = List<bool>.filled(20, false);
 
   // Heroku server URL endpoint for LED control.
-  final String ledControlUrl = 'https://sd-group1-7db20f01361c.herokuapp.com/api/unlimited/ledcontrol';
+  final String ledControlUrl =
+      'https://sd-group1-7db20f01361c.herokuapp.com/api/unlimited/ledcontrol';
 
   // Returns the color for each LED bulb: gray if off, blue for first 10 when on, red for last 10.
   Color _getLEDBulbColor(int index) {
     return !ledStates[index]
         ? Colors.grey
         : index < 10
-            ? const Color.fromARGB(255, 3, 85, 152)
-            : const Color.fromARGB(255, 176, 19, 8);
+            ? const Color.fromARGB(255, 3, 85, 152) // Blue for first 10
+            : const Color.fromARGB(255, 176, 19, 8); // Red for last 10
   }
 
   // Background image.
@@ -108,35 +109,94 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: ledStates.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 5,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
-                          itemBuilder: (context, index) {
+                        // ----------------------------------------------------------------
+                        // Manually build rows to match the physical 6/4/6/4 LED layout
+                        // ----------------------------------------------------------------
+                        // Row 1 (blue): indices 0..5
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(6, (i) {
+                            final index = i; // 0..5
                             return InkWell(
                               onTap: () {
                                 setState(() {
-                                  // Toggle the tapped LED.
                                   ledStates[index] = !ledStates[index];
                                 });
-                                _updateLEDStates(); // Send update after toggle.
+                                _updateLEDStates();
                               },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                child: Icon(
-                                  Icons.lightbulb,
-                                  size: 50,
-                                  color: _getLEDBulbColor(index),
-                                ),
+                              child: Icon(
+                                Icons.lightbulb,
+                                size: 50,
+                                color: _getLEDBulbColor(index),
                               ),
                             );
-                          },
+                          }),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Row 2 (blue): indices 6..9
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(4, (i) {
+                            final index = i + 6; // 6..9
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  ledStates[index] = !ledStates[index];
+                                });
+                                _updateLEDStates();
+                              },
+                              child: Icon(
+                                Icons.lightbulb,
+                                size: 50,
+                                color: _getLEDBulbColor(index),
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 40), // bigger gap before red
+
+                        // Row 3 (red): indices 10..15
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(6, (i) {
+                            final index = i + 10; // 10..15
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  ledStates[index] = !ledStates[index];
+                                });
+                                _updateLEDStates();
+                              },
+                              child: Icon(
+                                Icons.lightbulb,
+                                size: 50,
+                                color: _getLEDBulbColor(index),
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Row 4 (red): indices 16..19
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(4, (i) {
+                            final index = i + 16; // 16..19
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  ledStates[index] = !ledStates[index];
+                                });
+                                _updateLEDStates();
+                              },
+                              child: Icon(
+                                Icons.lightbulb,
+                                size: 50,
+                                color: _getLEDBulbColor(index),
+                              ),
+                            );
+                          }),
                         ),
                       ],
                     ),
