@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LEDBulbControlPage extends StatefulWidget {
   const LEDBulbControlPage({Key? key}) : super(key: key);
@@ -11,6 +13,9 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
   // List to track the on/off state for 20 LEDs (all initially off).
   final List<bool> ledStates = List<bool>.filled(20, false);
 
+  // Heroku server URL endpoint for LED control.
+  final String ledControlUrl = 'https://sd-group1-7db20f01361c.herokuapp.com/api/unlimited/ledcontrol';
+
   // Returns the color for each LED bulb: gray if off, blue for first 10 when on, red for last 10.
   Color _getLEDBulbColor(int index) {
     return !ledStates[index]
@@ -20,7 +25,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
             : const Color.fromARGB(255, 176, 19, 8);
   }
 
-  // Background image as per LuxDisplayPage.
+  // Background image.
   Widget _buildBackgroundImage() {
     return Container(
       decoration: const BoxDecoration(
@@ -32,7 +37,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
     );
   }
 
-  // Function to set the LED states for different modes
+  // Function to set the LED states for different modes.
   void _setPresetMode(int blueOn, int redOn) {
     setState(() {
       for (int i = 0; i < ledStates.length; i++) {
@@ -45,6 +50,25 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
         }
       }
     });
+    _updateLEDStates(); // Send update after mode change.
+  }
+
+  // Function to send the current LED states to your Heroku server.
+  Future<void> _updateLEDStates() async {
+    try {
+      final response = await http.post(
+        Uri.parse(ledControlUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'ledStates': ledStates}),
+      );
+      if (response.statusCode == 200) {
+        print("LED states updated successfully");
+      } else {
+        print("Failed to update LED states: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error updating LED states: $e");
+    }
   }
 
   @override
@@ -78,7 +102,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                         const Text(
                           'LED Control',
                           style: TextStyle(
-                            fontSize: 24, // Title font size
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -89,7 +113,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                           itemCount: ledStates.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 5, // 5 bulbs per row.
+                            crossAxisCount: 5,
                             crossAxisSpacing: 10,
                             mainAxisSpacing: 10,
                           ),
@@ -97,9 +121,10 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                             return InkWell(
                               onTap: () {
                                 setState(() {
-                                  // Toggle the state of the tapped bulb.
+                                  // Toggle the tapped LED.
                                   ledStates[index] = !ledStates[index];
                                 });
+                                _updateLEDStates(); // Send update after toggle.
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -117,14 +142,14 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 1), // Gap between container and buttons
+              const SizedBox(height: 1),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 alignment: WrapAlignment.center,
                 children: [
-                  _buildPresetButton('All On', 10, 10), // All LEDs On
-                  _buildPresetButton('All Off', 0, 0), // All LEDs Off
+                  _buildPresetButton('All On', 10, 10),
+                  _buildPresetButton('All Off', 0, 0),
                   _buildPresetButton('50-50', 5, 5),
                   _buildPresetButton('20-80', 2, 8),
                   _buildPresetButton('70-30', 7, 3),
@@ -134,7 +159,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
                   _buildPresetButton('40-60', 4, 6),
                 ],
               ),
-              const SizedBox(height: 90), // Extra padding at the bottom
+              const SizedBox(height: 90),
             ],
           ),
         ],
@@ -142,17 +167,17 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
     );
   }
 
-  // Helper function to build preset buttons
+  // Helper function to build preset buttons.
   Widget _buildPresetButton(String label, int blueOn, int redOn) {
     return ElevatedButton(
       onPressed: () => _setPresetMode(blueOn, redOn),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white, // Background color
+        backgroundColor: Colors.white,
         side: const BorderSide(color: Colors.black, width: 1.5),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // Rounded button
+          borderRadius: BorderRadius.circular(30),
         ),
-        elevation: 5, // Shadow effect
+        elevation: 5,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       ),
       child: Row(
@@ -160,7 +185,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
         children: [
           const Icon(
             Icons.tune,
-            color: Colors.green, // Icon color
+            color: Colors.green,
             size: 20,
           ),
           const SizedBox(width: 10),
@@ -168,7 +193,7 @@ class _LEDBulbControlPageState extends State<LEDBulbControlPage> {
             label,
             style: const TextStyle(
               fontSize: 16,
-              color: Colors.black, // Text color
+              color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),

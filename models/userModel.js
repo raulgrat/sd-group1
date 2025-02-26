@@ -50,9 +50,9 @@ const userSchema = new mongoose.Schema({
     default: 0,
   },
 
-  ledState: {
-    type: String,   
-    default: "off",
+  ledStates: { 
+    type: [Boolean], 
+    default: () => new Array(20).fill(false) 
   },
   
 });
